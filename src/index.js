@@ -1,6 +1,6 @@
 import * as CSS from './lib/css';
 import * as DOM from './lib/dom';
-import cls from './lib/class-names';
+import cls, { addScrollingClass } from './lib/class-names';
 import EventManager from './lib/event-manager';
 import processScrollDiff from './process-scroll-diff';
 import updateGeometry from './update-geometry';
@@ -26,6 +26,8 @@ const defaultSettings = () => ({
   wheelPropagation: true,
   wheelPropagationDisabledIfScrollable: false,
   wheelSpeed: 1,
+  alwaysShowY: false,
+  alwaysShowX: false,
 });
 
 const handlers = {
@@ -53,6 +55,14 @@ export default class PerfectScrollbar {
     this.settings = defaultSettings();
     for (const key in userSettings) {
       this.settings[key] = userSettings[key];
+    }
+
+    if (this.settings.alwaysShowY) {
+      addScrollingClass(this, 'y');
+    }
+
+    if (this.settings.alwaysShowX) {
+      addScrollingClass(this, 'x');
     }
 
     this.containerWidth = null;
@@ -188,8 +198,11 @@ export default class PerfectScrollbar {
 
     updateGeometry(this);
 
-    processScrollDiff(this, 'top', 0, false, true);
-    processScrollDiff(this, 'left', 0, false, true);
+    let useScrollingClassX = !this.settings.alwaysShowX;
+    let useScrollingClassY = !this.settings.alwaysShowY;
+
+    processScrollDiff(this, 'top', 0, false, useScrollingClassY);
+    processScrollDiff(this, 'left', 0, false, useScrollingClassX);
 
     CSS.set(this.scrollbarXRail, { display: '' });
     CSS.set(this.scrollbarYRail, { display: '' });
@@ -200,12 +213,21 @@ export default class PerfectScrollbar {
       return;
     }
 
+    let useScrollingClassX = !this.settings.alwaysShowX;
+    let useScrollingClassY = !this.settings.alwaysShowY;
+
     updateGeometry(this);
-    processScrollDiff(this, 'top', this.element.scrollTop - this.lastScrollTop);
+    processScrollDiff(
+      this,
+      'top',
+      this.element.scrollTop - this.lastScrollTop,
+      useScrollingClassY
+    );
     processScrollDiff(
       this,
       'left',
-      this.element.scrollLeft - this.lastScrollLeft
+      this.element.scrollLeft - this.lastScrollLeft,
+      useScrollingClassX
     );
 
     this.lastScrollTop = Math.floor(this.element.scrollTop);

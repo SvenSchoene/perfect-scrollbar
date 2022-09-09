@@ -13,6 +13,8 @@ declare namespace PerfectScrollbar {
     wheelPropagation?: boolean;
     wheelPropagationDisabledIfScrollable?: boolean;
     wheelSpeed?: number;
+    alwaysShowY?: boolean;
+    alwaysShowX?: boolean;
   }
 }
 

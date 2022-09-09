@@ -558,7 +558,10 @@ function bindMouseScrollHandler(
     }
     element[scrollTop] =
       startingScrollTop + scrollBy * (e[pageY] - startingMousePageY);
-    addScrollingClass(i, y);
+    if (!i.settings.alwaysShowY) {
+      addScrollingClass(i, y);
+    }
+
     updateGeometry(i);
 
     e.stopPropagation();
@@ -568,7 +571,9 @@ function bindMouseScrollHandler(
   }
 
   function mouseUpHandler() {
-    removeScrollingClass(i, y);
+    if (!i.settings.alwaysShowY) {
+      removeScrollingClass(i, y);
+    }
     i[scrollbarYRail].classList.remove(cls.state.clicking);
     i.event.unbind(i.ownerDocument, 'mousemove', mouseMoveHandler);
   }
@@ -1143,6 +1148,8 @@ var defaultSettings = function () { return ({
   wheelPropagation: true,
   wheelPropagationDisabledIfScrollable: false,
   wheelSpeed: 1,
+  alwaysShowY: false,
+  alwaysShowX: false,
 }); };
 
 var handlers = {
@@ -1172,6 +1179,14 @@ var PerfectScrollbar = function PerfectScrollbar(element, userSettings) {
   this.settings = defaultSettings();
   for (var key in userSettings) {
     this.settings[key] = userSettings[key];
+  }
+
+  if (this.settings.alwaysShowY) {
+    addScrollingClass(this, 'y');
+  }
+
+  if (this.settings.alwaysShowX) {
+    addScrollingClass(this, 'x');
   }
 
   this.containerWidth = null;
@@ -1307,8 +1322,11 @@ PerfectScrollbar.prototype.update = function update () {
 
   updateGeometry(this);
 
-  processScrollDiff(this, 'top', 0, false, true);
-  processScrollDiff(this, 'left', 0, false, true);
+  var useScrollingClassX = !this.settings.alwaysShowX;
+  var useScrollingClassY = !this.settings.alwaysShowY;
+
+  processScrollDiff(this, 'top', 0, false, useScrollingClassY);
+  processScrollDiff(this, 'left', 0, false, useScrollingClassX);
 
   set(this.scrollbarXRail, { display: '' });
   set(this.scrollbarYRail, { display: '' });
@@ -1319,12 +1337,21 @@ PerfectScrollbar.prototype.onScroll = function onScroll (e) {
     return;
   }
 
+  var useScrollingClassX = !this.settings.alwaysShowX;
+  var useScrollingClassY = !this.settings.alwaysShowY;
+
   updateGeometry(this);
-  processScrollDiff(this, 'top', this.element.scrollTop - this.lastScrollTop);
+  processScrollDiff(
+    this,
+    'top',
+    this.element.scrollTop - this.lastScrollTop,
+    useScrollingClassY
+  );
   processScrollDiff(
     this,
     'left',
-    this.element.scrollLeft - this.lastScrollLeft
+    this.element.scrollLeft - this.lastScrollLeft,
+    useScrollingClassX
   );
 
   this.lastScrollTop = Math.floor(this.element.scrollTop);
