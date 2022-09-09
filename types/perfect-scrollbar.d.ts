@@ -11,6 +11,7 @@ declare namespace PerfectScrollbar {
     swipeEasing?: boolean;
     useBothWheelAxes?: boolean;
     wheelPropagation?: boolean;
+    wheelPropagationDisabledIfScrollable?: boolean;
     wheelSpeed?: number;
   }
 }
@@ -56,7 +57,7 @@ declare class PerfectScrollbar {
   scrollbarYRight: number;
   scrollbarYTop: number;
   settings: PerfectScrollbar.Options;
-  reach: { x: 'start' | 'end' | null, y: 'start' | 'end' | null };
+  reach: { x: "start" | "end" | null; y: "start" | "end" | null };
 }
 
 export default PerfectScrollbar;
